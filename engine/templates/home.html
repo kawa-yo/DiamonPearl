@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+<title>{{ title }}</title>
+</head>
+<body>
+{% block content %}
+<form action="/REQ">
+	<h1>hello, world</h1>
+
+    <p>
+    <label for="landmark">Choose a landmark:</label>
+    <select name="landmark" id="cars">
+      <option value="fuji">Mt. Fuji</option>
+      <option value="sky_tree">Tokyo Sky Tree</option>
+      <option value="daibutu">Sendai Dai Kan'non</option>
+      <option value="abeno">Abeno Harukasu</option>
+    </select>
+    </p>
+
+	<button type=submit formmethod=POST>map</button>
+	<button type=submit formmethod=GET>get</button>
+</form>
+{% endblock %}
+</body>
+</html>
