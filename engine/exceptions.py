@@ -1,6 +1,6 @@
 class AltitudeError(Exception):
     MIN_ALTITUDE = -1
-    MAX_ALTITUDE = 30
+    MAX_ALTITUDE = 15
 
     def __init__(self, altitude: float) -> None:
         message = "altitude `{}` out of bounds `[{}, {}]`".format(
@@ -21,3 +21,4 @@ class SpotNotFoundException(Exception):
         message = "Spot not found in [date: {}, azimuth: {}, altitude: {}]".format(
             date_str, azimuth, altitude
         )
+        super().__init__(message)

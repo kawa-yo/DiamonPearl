@@ -1,9 +1,10 @@
 import flask
-from flask import Flask, render_template, request, abort
+from flask import Flask, render_template, abort
 import numpy as np
 import pandas as pd
 from typing import List, Optional
 from urllib import parse, request
+import traceback
 import json
 from utils import Point, isViewable, validHeight, deg2rad, sun_rise_set
 from exceptions import AltitudeError, SpotNotFoundException
@@ -19,29 +20,31 @@ def home():
 @app.route("/REQ", methods=["GET", "POST"])
 def req():
     try:
-        if request.method == 'GET':
-            return request.args.get('landmark', '')
-        elif request.method == 'POST':
-            locations = []
-            landmark=request.form["landmark"]
-            row = df[df["name"] == landmark].iloc[0]
-            print(row)
+        if flask.request.method == 'GET':
+            return flask.request.args.get('landmark', '')
+        elif flask.request.method == 'POST':
+            # landmark=flask.request.form["landmark"]
+            # row = df[df["name"] == landmark].iloc[0]
+            fuji = Point(35.3606, 138.7274, name="Mt.Fuji")
+            _spots = find_all_spots( fuji, "2021/10/1", min_interval=10 )
+            locations = [s.to_location_format() for s in _spots]
             return render_template( "mappage.html",
                                     title="map page",
-                                    landmark=landmark,
-                                    latitude=row["latitude"],
-                                    longitude=row["longitude"],
-                                    height=row["height"],
+                                    landmark=fuji.name,
+                                    latitude=fuji.latitude,
+                                    longitude=fuji.longitude,
+                                    height=fuji.height,
                                     locations=locations
                                     )
         else:
             return abort(400)
     except Exception as e:
+        traceback.print_exc()
         return str(e)
 
 def find_all_spots( root_point: Point,
                     date_str: str,  # YYYY/MM/DD
-                    min_interval: int=30,
+                    min_interval: int=20,
                     dist_interval: int=100,
                     ) -> List[Point,]:
 
@@ -82,7 +85,7 @@ def find_all_spots( root_point: Point,
 def find_spot( root_point: Point,
                date_time_str: str,  # YYYY/MM/DD/hh/mm
                start: int = 0, #<meter>
-               end:   int = 20000, #<meter>
+               end:   int = 50000, #<meter>
                interval: int = 100,  #<meter>
                ) -> Point:
     date = [int(t) for t in date_time_str.split("/")]
@@ -105,23 +108,27 @@ def find_spot( root_point: Point,
     if not AltitudeError.isValid(altitude):
         raise AltitudeError(altitude)
 
-    prev = fuji
+    prev = root_point
     for dist in range(start, end, interval):
-        vheight = validHeight(dist, altitude, fuji.height)
-        next = fuji.next(azimuth, dist, vheight, name="{:02d}:{:02d}".format(date[3], date[4]))
-        if isViewable( next, prev, dist ):
-            if interval <= 10:
-                return next
-            else:
-                return find_spot( root_point, date_time_str, dist-interval, dist, max(10, interval//10) )
+        vheight = validHeight(dist, altitude, root_point.height)
+        try:
+            next = root_point.next(azimuth, dist, vheight, name="{:02d}:{:02d}".format(date[3], date[4]))
+            if isViewable( next, prev, dist ):
+                if interval <= 10:
+                    return next
+                else:
+                    return find_spot( root_point, date_time_str, dist-interval, dist, max(10, interval//10) )
+        except FileNotFoundError as e:
+            print(e)
+            break
 
-    raise SpotNotFoundException(date_str, azimuth, altitude)
+    raise SpotNotFoundException(date_time_str, azimuth, altitude)
 
 
 if __name__ == "__main__":
-    fuji = Point(35.3606, 138.7274, name="Mt.Fuji")
-    date_str = "2021/7/10"
-    points = find_all_spots(fuji, date_str)
-    for p in points:
-        print(p)
-    # app.run(debug=True)
+    # fuji = Point(35.3606, 138.7274, name="Mt.Fuji")
+    # date_str = "2021/7/10"
+    # points = find_all_spots(fuji, date_str)
+    # for p in points:
+    #     print(p)
+    app.run(debug=True)
