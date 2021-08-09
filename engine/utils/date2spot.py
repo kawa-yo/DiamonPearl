@@ -80,9 +80,7 @@ def find_spot( body: str,
             elif dE >= 0:
                 return find_spot( body, root_point, datetime, dist-interval, dist, max(10, interval//10) )
 
-        except FileNotFoundError as e:
-            mc = next._mesh_code
-            about = mc.primary*100 + mc.secondary
+        except (FileNotFoundError, KeyError) as e:
             print(e)
             break
 

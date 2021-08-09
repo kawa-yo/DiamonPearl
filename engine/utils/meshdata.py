@@ -78,7 +78,7 @@ class MeshCode:
         if self.label not in self.memo:
             try:
                 self._read_meshfile()
-            except FileNotFoundError as e:
+            except (FileNotFoundError, KeyError) as e:
                 if self.primary*100 + self.secondary in UNEXIST:
                     return FILE_NOT_EXIST_ELEVATION
                 else:

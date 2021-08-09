@@ -7,7 +7,7 @@ def rad2deg(rad: float) -> float:
     return rad * 180 / np.pi
 
 
-R = 6378.1 * 1000  # earth radius <meter>
+R = 63781370  # earth radius <meter>
 AngularDiameter = deg2rad(0.53)
 
 
