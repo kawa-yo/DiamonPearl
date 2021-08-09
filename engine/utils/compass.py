@@ -13,7 +13,7 @@ BODY = {
     "MOON": ephem.Moon(),
 }
 
-def _sun_rise_set( point: Point,
+def _sun_rise_set_api( point: Point,
                    date: dt.date,
                    verbose: bool = False,
                    ) -> Tuple[int, int]:  # (rise_hour, rise_min, set_hour, set_min) 
@@ -38,10 +38,10 @@ def _sun_rise_set( point: Point,
         print(f"sunrise: {rise} / sunset: {set}")
     return rise_hour, rise_min, set_hour, set_min
 
-def rise_set( astbody: str,
-              point: Point,
-              date: dt.date,
-              ) -> Tuple[dt.datetime, dt.datetime]:
+def astro_rise_set( astbody: str,
+                    point: Point,
+                    date: dt.date,
+                    ) -> Tuple[dt.datetime, dt.datetime]:
     assert astbody in BODY
     datetime = dt.datetime.combine( date, dt.time(0, 0) )
     obs = Observer( point, datetime )
@@ -61,15 +61,13 @@ def Observer( point: Point,
     obs.date = date_time.astimezone(pytz.utc)
     return obs
 
-def sun_direction( point: Point,
-                   datetime: dt.datetime,
-                   method: str = "ephem",
-                   ) -> Tuple[float, float]:
+def astro_direction( body: str,
+                     point: Point,
+                     datetime: dt.datetime,
+                     method: str = "ephem",
+                     ) -> Tuple[float, float]:
 
-    assert method in ["ephem", "api"]
-
-    if method == "api":
-        return _sun_direction_api( point, datetime )
+    return _astro_direction_ephem(body, point, datetime)
 
     return _sun_direction_ephem( point, datetime )
 
@@ -91,13 +89,15 @@ def _sun_direction_api( point: Point,
     res = json.loads(req.decode("utf-8"))
     return float(res["result"]["altitude"]), float(res["result"]["azimuth"])
 
-def _sun_direction_ephem( point: Point,
-                          datetime: dt.datetime,
-                          ) -> Tuple[float, float]:
+def _astro_direction_ephem( body: str,
+                            point: Point,
+                            datetime: dt.datetime,
+                            ) -> Tuple[float, float]:
+    assert body in BODY
     observer = Observer( point, datetime )
-    sun = ephem.Sun()
-    sun.compute(observer)
-    return math.degrees(sun.alt), math.degrees(sun.az)
+    body = BODY[body]
+    body.compute(observer)
+    return math.degrees(body.alt), math.degrees(body.az)
 
 if __name__ == "__main__":
     fuji = Point( 35.362797, 138.730878, elevation=3776, name="Mt_Fuji")

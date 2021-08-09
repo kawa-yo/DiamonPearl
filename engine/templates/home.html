@@ -5,13 +5,15 @@
   <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}" />
   <script type="text/javascript">
     var landmarks = {{ landmarks|tojson }};
+    var bodies = {{ bodies|tojson }};
   </script>
   <script src="{{url_for('static', filename='home.js')}}"></script>
+  <script src="{{url_for('static', filename='tabs.js')}}"></script>
 </head>
 <body>
 {% block content %}
-  <button class="tablink" onclick="openPage('date_tab', this, 'purple')" id="defaultOpen">from Date</button>
-  <button class="tablink" onclick="openPage('point_tab', this, 'green')">from Point</button>
+  <button class="tablink" onclick="openPage('date_tab', this, 'black')" id="defaultOpen">from Date</button>
+  <button class="tablink" onclick="openPage('point_tab', this, 'black')">from Point</button>
   
   <div id="date_tab" class="tabcontent">
     <form action="/from_date" method="POST">
@@ -21,9 +23,15 @@
         <select name="landmark" id="select_landmark">
           <!-- add options in js -->
         </select>
+      </p>
+      <p>
+        <label for="body">Sun or Moon:</label>
+        <select name="body" id="select_body">
+          <!-- add options in js -->
+        </select>
+      </p>
         <input type="date" name="date" id="datePicker">
         <button type="submit">SEARCH</button>
-      </p>
     </form>
   </div>
 
@@ -33,6 +41,8 @@
         <select name="landmark" id="select_landmark">
           <!-- add options in js -->
         </select>
+      </p>
+      <p>
         <input type="date" name="date" id="datePicker">
         <button type="submit">SEARCH</button>
       </p>

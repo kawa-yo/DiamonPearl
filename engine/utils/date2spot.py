@@ -4,18 +4,21 @@ import datetime as dt
 from . import R, deg2rad, rad2deg
 from .exceptions import AltitudeError, SpotNotFoundException
 from .point import Point, validElevation
-from .compass import rise_set, sun_direction
+from .compass import astro_rise_set, astro_direction, BODY
 from .meshdata import FILE_NOT_EXIST_ELEVATION, UNEXIST
 
 ELEVATION_TOLERANCE = 10
 
-def find_all_spots( root_point: Point,
+def find_all_spots( body: str,
+                    root_point: Point,
                     date: dt.date,  # YYYY/MM/DD
                     min_interval: int=20,
                     dist_interval: int=100,
                     ) -> List[Point,]:
 
-    rise, set = rise_set( "SUN", root_point, date )
+    assert body in BODY
+
+    rise, set = astro_rise_set( body, root_point, date )
     rise = rise.hour*60 + rise.minute 
     rise = (rise // min_interval + 1) * (min_interval)  # minimum divisor of `min_interval` greater than original `rise` 
     set = set.hour*60 + set.minute 
@@ -26,14 +29,15 @@ def find_all_spots( root_point: Point,
     points = [root_point]
     for phase in ["rise", "set"]:
         if phase == "rise":
-            RANGE = range(rise, 12*60, min_interval)
+            RANGE = range(rise, rise+12*60, min_interval)
         else:
-            RANGE = range(set, 12*60, -min_interval)
+            RANGE = range(set, set-12*60, -min_interval)
         for time in RANGE:
+            time = time % (24 * 60)
             hour, min = time//60, time%60
             datetime = dt.datetime.combine( date, dt.time(hour, min) )
             try:
-                point = find_spot( root_point, datetime, interval=dist_interval )
+                point = find_spot( body, root_point, datetime, interval=dist_interval )
                 points.append(point)
             except AltitudeError as e:
                 print(e)
@@ -44,14 +48,15 @@ def find_all_spots( root_point: Point,
     return points
 
 
-def find_spot( root_point: Point,
+def find_spot( body: str,
+               root_point: Point,
                datetime: dt.datetime,  # YYYY/MM/DD/hh/mm
                start: int =   1000, #<meter>
                end:   int = 150000, #<meter>
                interval: int = 100,  #<meter>
                ) -> Point:
 
-    altitude, azimuth = sun_direction( root_point, datetime, "ephem")
+    altitude, azimuth = astro_direction( body, root_point, datetime )
     azimuth += 180
     print(datetime)
 
@@ -73,7 +78,7 @@ def find_spot( root_point: Point,
             elif dE >= 0 and interval <= 10:
                 break
             elif dE >= 0:
-                return find_spot( root_point, datetime, dist-interval, dist, max(10, interval//10) )
+                return find_spot( body, root_point, datetime, dist-interval, dist, max(10, interval//10) )
 
         except FileNotFoundError as e:
             mc = next._mesh_code

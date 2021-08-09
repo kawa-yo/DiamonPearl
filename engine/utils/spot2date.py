@@ -4,7 +4,7 @@ import datetime as dt
 
 from . import R, AngularDiameter, deg2rad, rad2deg
 from .point import Point, validElevation
-from .compass import rise_set, sun_direction
+from .compass import astro_rise_set, astro_direction
 
 
 def daterange( start: dt.date,
@@ -44,7 +44,7 @@ def _ViewableTime( date: dt.date,
                         ) -> Tuple[float, str]:
         mid = (left + right) // 2
         hour, min = mid//60, mid%60
-        result = sun_direction( spot, f"{date}/{hour}/{min}" )
+        result = astro_direction( "SUN", spot, f"{date}/{hour}/{min}" )
         print("{:.1f}/{:.1f}".format(float(result["azimuth"]), azimuth), end=" | ")
         if left == mid:
             return (float(result["altitude"]), f"{hour}/{min}") 
@@ -52,7 +52,7 @@ def _ViewableTime( date: dt.date,
             return _binary_search(left, mid)
         return _binary_search(mid, right)
 
-    rise, set = rise_set( "SUN", spot, date )
+    rise, set = astro_rise_set( "SUN", spot, date )
     rise = rise.hour*60 + rise.minute 
     set = set.hour*60 + set.minute 
 

@@ -8,15 +8,23 @@
     var locations = {{ locations|tojson }};
   </script>
   <script src="{{url_for('static', filename='mappage.js')}}"></script>
+  <script src="{{url_for('static', filename='tabs.js')}}"></script>
 </head>
 <body>
 {% block content %}
-<div id="locations"></div>
-<div id="map"></div>
-<script
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdCNfoekBrN8PowhdfW2QC2pM-VvcF7l0&callback=initMap&libraries=&v=weekly"
-  async
-></script>
+  <button class="tablink" onclick="openPage('map_tab', this, 'black')" id="defaultOpen">map</button>
+  <button class="tablink" onclick="openPage('locations_tab', this, 'black')">meta data</button>
+
+  <div id="map_tab" class="tabcontent">
+  </div>
+
+  <div id="locations_tab" class="tabcontent">
+  </div>
+
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdCNfoekBrN8PowhdfW2QC2pM-VvcF7l0&callback=initMap&libraries=&v=weekly"
+    async
+  ></script>
 {% endblock %}
 </body>
 </html>

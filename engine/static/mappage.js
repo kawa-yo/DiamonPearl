@@ -5,15 +5,19 @@ var infowindow
 function toTable(locations, verbose=false) {
   var tbl = document.createElement('table');
   var tbdy = document.createElement('tbody');
-  for( var i=0; i<locations.length; i++ ) {
+  header = [
+    "", "latitude", "longitude", "mesh code", "elevation", "valid elevation", "delta"
+  ]
+  cells = [header].concat(locations)
+  for( var i=0; i<cells.length; i++ ) {
     var tr = document.createElement('tr');
-    for ( var j=0; j<locations[i].length; j++ ) {
+    for ( var j=0; j<cells[i].length; j++ ) {
       var td = document.createElement('td');
-      td.appendChild(document.createTextNode(locations[i][j]))
+      td.appendChild(document.createTextNode(cells[i][j]))
       tr.appendChild(td)
     }
     tbdy.appendChild(tr);
-    if( verbose ) console.log( locations[i] );
+    if( verbose ) console.log( cells[i] );
   }
   tbl.appendChild(tbdy);
   return tbl;
@@ -21,12 +25,11 @@ function toTable(locations, verbose=false) {
 
 
 function initMap() {
-  if( DEBUG ) {
-    table = toTable( locations );
-    document.getElementById('locations').appendChild( table );
-  }
+  table = toTable( locations );
+  document.getElementById('locations_tab').appendChild( table );
+
   center = locations[0]
-  map = new google.maps.Map(document.getElementById('map'), {
+  map = new google.maps.Map(document.getElementById('map_tab'), {
     zoom: 10,
     scaleControl: true,
     center: new google.maps.LatLng(center[1], center[2]),
@@ -51,3 +54,7 @@ function initMap() {
     })(marker, i));
   }
 }
+
+window.onload = function() {
+    document.getElementById("defaultOpen").click();
+};
