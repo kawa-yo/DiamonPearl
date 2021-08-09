@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import json
 import traceback
 from typing import List, Optional
-from main import find_spot
+from utils import sun_direction
 
 def sec2deg(deg, min, sec):
     return deg + (min + sec / 60.) / 60.
@@ -105,10 +105,6 @@ def plot():
                 traceback.print_exc()
 
 if __name__ == "__main__":
-    spot = find_spot("2021/7/10/6/0", interval=100)
-    print(spot)
-    spot = find_spot("2021/7/10/6/0", interval=1000)
-    print(spot)
     # plot()
     # next_point()
     # sun()

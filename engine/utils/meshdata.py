@@ -2,6 +2,10 @@ from __future__ import annotations
 from typing import Tuple
 import xml.etree.ElementTree as ET
 import os
+from pathlib import Path
+
+UNEXIST = [523962, 523963, 523952, 523953, 523944, 523945, 523934, 523935, 533927]
+FILE_NOT_EXIST_ELEVATION = -100
 
 class MeshCode:
     memo = {}
@@ -25,7 +29,7 @@ class MeshCode:
     @staticmethod
     def xy2mesh( lat: float,
                  lon: float,
-                 ) -> Tuple[float, float, float]:
+                 ) -> Tuple[int, int, int]:
         lat_ful = lat * 1.5
         lon_ful = lon - 100
         lat_1st = int(lat_ful)
@@ -40,14 +44,14 @@ class MeshCode:
         rest = (749 - lat_rest) * 1125 + lon_rest
         return first, second, rest
 
-    def _getMeshFile(self) -> str:
-        dirname = os.path.dirname(__file__)
+    def _meshfile_path(self) -> str:
+        dirname = Path(__file__).parent.parent
         name = "FG-GML-{:d}-{:02d}-dem10b-20161001.xml".format(self.primary, self.secondary)
         path = os.path.join(dirname, "resource", "PackDLMap", name)
         return path
     
     def _read_meshfile(self) -> None:
-        meshfile = self._getMeshFile()
+        meshfile = self._meshfile_path()
         tree = ET.parse(meshfile)
         root = tree.getroot()
         xpath = "/".join([
@@ -61,7 +65,13 @@ class MeshCode:
         data = [float(d.split(",")[-1]) for d in data]
         self.memo[self.label] = data
 
-    def height(self):
+    def elevation(self):
         if self.label not in self.memo:
-            self._read_meshfile()
+            try:
+                self._read_meshfile()
+            except FileNotFoundError as e:
+                if self.primary*100 + self.secondary in UNEXIST:
+                    return FILE_NOT_EXIST_ELEVATION
+                else:
+                    raise e
         return self.memo[self.label][self.residue]

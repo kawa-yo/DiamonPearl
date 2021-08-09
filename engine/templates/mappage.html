@@ -4,21 +4,15 @@
   <title>{{ title }}</title>
   <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}" />
   <script type="text/javascript">
+    var DEBUG = {{ DEBUG|tojson }};
     var locations = {{ locations|tojson }};
   </script>
   <script src="{{url_for('static', filename='mappage.js')}}"></script>
 </head>
 <body>
 {% block content %}
-<h1>map page</h1>
-<h2>{{ landmark }}</h2>
-<table>
-	<tr> <th>緯度</th> <th>{{ latitude }}</th> </tr>
-	<tr> <th>経度</th> <th>{{ longitude }}</th> </tr>
-	<tr> <th>標高</th> <th>{{ height }}</th> </tr>
-</table>
 <div id="locations"></div>
-<div id="map" style="width: 500px; height: 400px;"></div>
+<div id="map"></div>
 <script
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDdCNfoekBrN8PowhdfW2QC2pM-VvcF7l0&callback=initMap&libraries=&v=weekly"
   async

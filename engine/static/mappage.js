@@ -21,8 +21,10 @@ function toTable(locations, verbose=false) {
 
 
 function initMap() {
-  table = toTable( locations );
-  document.getElementById('locations').appendChild( table );
+  if( DEBUG ) {
+    table = toTable( locations );
+    document.getElementById('locations').appendChild( table );
+  }
   center = locations[0]
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 10,

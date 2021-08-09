@@ -1,26 +1,43 @@
 <!doctype html>
 <html>
 <head>
-<title>{{ title }}</title>
+  <title>{{ title }}</title>
+  <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style.css')}}" />
+  <script type="text/javascript">
+    var landmarks = {{ landmarks|tojson }};
+  </script>
+  <script src="{{url_for('static', filename='home.js')}}"></script>
 </head>
 <body>
 {% block content %}
-<form action="/REQ">
-	<h1>hello, world</h1>
+  <button class="tablink" onclick="openPage('date_tab', this, 'purple')" id="defaultOpen">from Date</button>
+  <button class="tablink" onclick="openPage('point_tab', this, 'green')">from Point</button>
+  
+  <div id="date_tab" class="tabcontent">
+    <form action="/from_date" method="POST">
+      <h1>hello, world</h1>
+      <p>
+        <label for="landmark">Choose a landmark:</label>
+        <select name="landmark" id="select_landmark">
+          <!-- add options in js -->
+        </select>
+        <input type="date" name="date" id="datePicker">
+        <button type="submit">SEARCH</button>
+      </p>
+    </form>
+  </div>
 
-    <p>
-    <label for="landmark">Choose a landmark:</label>
-    <select name="landmark" id="cars">
-      <option value="fuji">Mt. Fuji</option>
-      <option value="sky_tree">Tokyo Sky Tree</option>
-      <option value="daibutu">Sendai Dai Kan'non</option>
-      <option value="abeno">Abeno Harukasu</option>
-    </select>
-    </p>
+  <div id="point_tab" class="tabcontent">
+      <p>
+        <label for="landmark">Choose a landmark:</label>
+        <select name="landmark" id="select_landmark">
+          <!-- add options in js -->
+        </select>
+        <input type="date" name="date" id="datePicker">
+        <button type="submit">SEARCH</button>
+      </p>
+  </div>
 
-	<button type=submit formmethod=POST>map</button>
-	<button type=submit formmethod=GET>get</button>
-</form>
 {% endblock %}
 </body>
 </html>
