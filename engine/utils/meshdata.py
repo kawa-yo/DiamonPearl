@@ -3,6 +3,7 @@ from typing import Tuple
 import xml.etree.ElementTree as ET
 import os
 from pathlib import Path
+from zipfile import ZipFile
 
 UNEXIST = [523962, 523963, 523952, 523953, 523944, 523945, 523934, 523935, 533927]
 FILE_NOT_EXIST_ELEVATION = -100
@@ -13,11 +14,13 @@ class MeshCode:
     def __init__( self,
                   latitude: float, #<deg>
                   longitude: float, #<deg>
+                  zip: bool = True,
                   ) -> None:
         assert   0 <= latitude and latitude < 66
         assert 100 <= longitude and longitude < 180
         self._latiitude = latitude
         self._longitude = longitude
+        self.zip = zip
 
         _code = self.xy2mesh(latitude, longitude)
         self.primary   = _code[0]
@@ -44,16 +47,22 @@ class MeshCode:
         rest = (749 - lat_rest) * 1125 + lon_rest
         return first, second, rest
 
-    def _meshfile_path(self) -> str:
+    def _etree_root(self):
         dirname = Path(__file__).parent.parent
         name = "FG-GML-{:d}-{:02d}-dem10b-20161001.xml".format(self.primary, self.secondary)
-        path = os.path.join(dirname, "resource", "PackDLMap", name)
-        return path
-    
+        if not self.zip:
+            path = os.path.join(dirname, "resource", "PackDLMap", name)
+            tree = ET.parse(path)
+            root = tree.getroot()
+            return root 
+        zipfile = os.path.join(dirname, "resource", "PackDLMap.zip")
+        root = None
+        with ZipFile(zipfile, "r") as result:
+            root = ET.fromstring(result.read(f"PackDLMap/{name}"))
+        return root
+
     def _read_meshfile(self) -> None:
-        meshfile = self._meshfile_path()
-        tree = ET.parse(meshfile)
-        root = tree.getroot()
+        root = self._etree_root()
         xpath = "/".join([
             "{http://fgd.gsi.go.jp/spec/2008/FGD_GMLSchema}DEM",
             "{http://fgd.gsi.go.jp/spec/2008/FGD_GMLSchema}coverage",

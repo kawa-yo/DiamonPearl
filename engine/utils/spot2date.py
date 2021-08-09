@@ -128,7 +128,7 @@ def simulation( root_point: Point,
     altitude, azimuth = _valid_altitude_azimuth(root_point, spot)
     X, Y1, Y2 = [], [], []
     for dist, point in pointRange(root_point, spot):
-        velev = validElevation(dist, altitude, root_point.elevation)
+        velev = validElevation(dist, altitude, root_point)
         X.append(dist)
         Y1.append(point.elevation)
         Y2.append(velev)

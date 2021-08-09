@@ -106,6 +106,5 @@ if __name__ == "__main__":
     obs = Observer( ymnk, datetime )
     sun = ephem.Moon()
     sun.compute(obs)
-    print(sun.__bases__)
     print(ephem.localtime( obs.next_rising(sun)), ephem.localtime( obs.next_setting(sun)))
     
